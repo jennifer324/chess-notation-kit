@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chessnotation"
+version = "0.1.0"
+description = "Pure functions for parsing and formatting chess notation"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "jennifer324" }]
+dependencies = []
+
+[project.scripts]
+chessnotation = "chessnotation.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chessnotation"]
