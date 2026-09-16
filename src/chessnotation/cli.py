@@ -8,6 +8,7 @@ import json
 import sys
 from dataclasses import asdict
 
+from .pgn import parse_movetext
 from .san import parse_san
 from .squares import distance, is_valid_square, same_diagonal, same_file, same_rank, square_color
 
@@ -50,6 +51,16 @@ def _cmd_san(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_pgn(args: argparse.Namespace) -> int:
+    try:
+        moves = parse_movetext(args.movetext)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    print(json.dumps([asdict(move) for move in moves]))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chessnotation")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -66,6 +77,10 @@ def build_parser() -> argparse.ArgumentParser:
     san = subparsers.add_parser("san", help="parse a SAN move token")
     san.add_argument("token", help='e.g. "Nbd2+" or "exd5=Q"')
     san.set_defaults(func=_cmd_san)
+
+    pgn = subparsers.add_parser("pgn", help="parse PGN movetext into a list of moves")
+    pgn.add_argument("movetext", help='e.g. "1. e4 e5 2. Nf3 Nc6"')
+    pgn.set_defaults(func=_cmd_pgn)
 
     return parser
 

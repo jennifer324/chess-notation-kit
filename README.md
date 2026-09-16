@@ -23,7 +23,7 @@ pip install -e .
 ## Library usage
 
 ```python
-from chessnotation import parse_san, format_san, square_to_coords, square_color
+from chessnotation import parse_san, format_san, parse_movetext, square_to_coords, square_color
 
 move = parse_san("Nbd2+")
 move.piece        # "N"
@@ -46,6 +46,18 @@ parse_san("e8=Q+").promotion    # "Q"
 
 `parse_san` raises `ValueError` on malformed input rather than guessing.
 
+A full game's movetext parses to a list of `SANMove`, in order:
+
+```python
+parse_movetext("1. e4 e5 2. Nf3 Nc6 3. Bb5 a6")
+# [SANMove(to_square="e4", ...), SANMove(to_square="e5", ...), ...]
+```
+
+`parse_movetext` strips move numbers, brace comments, `$` NAGs, and `!`/`?`
+annotation suffixes, and drops a trailing result marker (`1-0`, `0-1`,
+`1/2-1/2`, `*`). Parenthesized variations aren't supported yet and raise
+`ValueError`.
+
 ## CLI
 
 The library ships a thin CLI for quick lookups from a terminal:
@@ -59,6 +71,9 @@ $ python -m chessnotation.cli san "exd5=Q+"
 
 $ python -m chessnotation.cli compare e1 e8
 {"a": "e1", "b": "e8", "same_file": true, "same_rank": false, ...}
+
+$ python -m chessnotation.cli pgn "1. e4 e5 2. Nf3 Nc6"
+[{"raw": "e4", "to_square": "e4", ...}, {"raw": "e5", ...}, ...]
 ```
 
 If installed via `pip install -e .`, the `chessnotation` command is also
@@ -67,8 +82,8 @@ available directly.
 ## Status
 
 Early. SAN parsing covers standard moves, captures, disambiguation,
-promotion, castling, and check/mate suffixes. Not yet covered: parsing a
-full PGN move list, and en passant is only representable the same way any
-other pawn capture is (this layer doesn't know board state, so it can't
-distinguish them — that needs the move-generation layer this is meant to
-sit under).
+promotion, castling, and check/mate suffixes. PGN movetext parses down to
+a list of moves, but parenthesized variations aren't handled yet. En
+passant is only representable the same way any other pawn capture is
+(this layer doesn't know board state, so it can't distinguish them — that
+needs the move-generation layer this is meant to sit under).
